@@ -17,7 +17,7 @@
     <div id="landing-screen" class="screen" style="display: block;">
         <select id="lang-select-1"><option value="en">English</option><option value="th">Thai</option></select>
         <h2>Welcome to SafeCheck Daily</h2>
-        <p>Our aim is to provide you with a daily Check In Service...</p>
+        <p>Our aim is to provide you with a daily Check In Service, and if you miss your check in time, we will alert your Family Member or Friend to contact you. We offer you a free 30 day trial, after which we will automatically charge you a monthly subscription fee of $10. The Subscription fee may be changed from time to time, but only after notice to you.</p>
         <p><strong>If you are an existing user Login here.</strong></p>
         <input type="email" id="login-email" placeholder="Email">
         <input type="password" id="login-password" placeholder="Password">
@@ -54,34 +54,6 @@
         <button id="go-to-amend-nom-btn" style="background: #6c757d; color: white;">Amend Nominee Details</button>
         <button id="go-to-amend-user-btn" style="background: #6c757d; color: white;">Amend Your Details</button>
         <button id="logout-btn" style="background: #dc3545; color: white;">Log Out</button>
-    </div>
-
-    <div id="amend-nominee-screen" class="screen" style="display: none;">
-        <select id="lang-select-4"><option value="en">English</option><option value="th">Thai</option></select>
-        <input type="text" id="edit-nom-name" placeholder="Name">
-        <input type="tel" id="edit-nom-mobile" placeholder="Mobile">
-        <input type="email" id="edit-nom-email" placeholder="Email">
-        <button id="save-nominee-btn" style="background: #28a745; color: white;">Save Nominee</button>
-        <p class="link-text" id="back-to-dash-nom-btn">Back</p>
-    </div>
-
-    <div id="amend-user-screen" class="screen" style="display: none;">
-        <select id="lang-select-5"><option value="en">English</option><option value="th">Thai</option></select>
-        <h3>Amend Your Details</h3>
-        <input type="text" id="edit-user-name" placeholder="Full Name">
-        <input type="email" id="edit-user-email" placeholder="Email" disabled>
-        <input type="tel" id="edit-user-mobile" placeholder="Mobile">
-        <input type="time" id="edit-user-time">
-        <input type="password" id="new-password" placeholder="New Password (Optional)">
-        <button id="save-user-btn" style="background: #28a745; color: white;">Save Changes</button>
-        <button id="delete-account-btn" style="background: #dc3545; color: white; margin-top: 30px;">Delete Account</button>
-        <p class="link-text" id="back-to-dash-user-btn">Back</p>
-    </div>
-
-    <div id="subscription-screen" class="screen" style="display: none;">
-        <h2>Trial Expired</h2>
-        <p>Your 30-day free trial has ended. Please contact us to set up your subscription to continue using SafeCheck Daily.</p>
-        <button id="logout-from-sub-btn" style="background: #dc3545; color: white;">Log Out</button>
     </div>
 
     <script type="module" src="backend.js"></script>
