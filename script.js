@@ -2,18 +2,20 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/fireba
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
 
-const app = initializeApp({
-    apiKey: "YOUR_API_KEY",
+// Your Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyC9ntGWRG7jAoentLujaSOUceV9Rb-CUlY",
     authDomain: "safecheckkeytest.firebaseapp.com",
     projectId: "safecheckkeytest",
     storageBucket: "safecheckkeytest.firebasestorage.app",
-    messagingSenderId: "847055375730",
-    appId: "1:847055375730:web:d93540c946277259160d5b"
-});
-const auth = getAuth(auth);
+    messagingSenderId: "811381429191",
+    appId: "1:811381429191:web:1548ffdcc165089dce3fe2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Simple page switching
 const showPage = (id) => {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     document.getElementById(id).style.display = 'block';
@@ -27,6 +29,7 @@ document.getElementById('logout-btn').onclick = async () => {
     showPage('landing-screen'); 
 };
 
+// Registration
 document.getElementById('submit-reg-btn').onclick = async () => {
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
@@ -49,6 +52,7 @@ document.getElementById('submit-reg-btn').onclick = async () => {
     }
 };
 
+// Login
 document.getElementById('login-btn').onclick = async () => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
@@ -60,7 +64,7 @@ document.getElementById('login-btn').onclick = async () => {
     }
 };
 
-// Dashboard Button Logic
+// Dashboard "I'm OK" Button
 document.getElementById('ok-btn').onclick = async () => {
     const user = auth.currentUser;
     if (user) {
