@@ -1,13 +1,19 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
 
 const app = initializeApp({
-    /* Your Firebase Config Here */
+    apiKey: "YOUR_API_KEY",
+    authDomain: "safecheckkeytest.firebaseapp.com",
+    projectId: "safecheckkeytest",
+    storageBucket: "safecheckkeytest.firebasestorage.app",
+    messagingSenderId: "847055375730",
+    appId: "1:847055375730:web:d93540c946277259160d5b"
 });
-const auth = getAuth(app);
+const auth = getAuth(auth);
 const db = getFirestore(app);
 
+// Simple page switching
 const showPage = (id) => {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     document.getElementById(id).style.display = 'block';
@@ -16,6 +22,10 @@ const showPage = (id) => {
 // UI Listeners
 document.getElementById('go-to-reg-btn').onclick = () => showPage('register-screen');
 document.getElementById('back-to-login').onclick = () => showPage('landing-screen');
+document.getElementById('logout-btn').onclick = async () => { 
+    await signOut(auth); 
+    showPage('landing-screen'); 
+};
 
 document.getElementById('submit-reg-btn').onclick = async () => {
     const email = document.getElementById('reg-email').value;
@@ -44,19 +54,19 @@ document.getElementById('login-btn').onclick = async () => {
     const password = document.getElementById('login-password').value;
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        alert("Logged in successfully!");
         showPage('dashboard-screen');
     } catch (error) {
         alert(error.message);
     }
 };
 
-document.getElementById('check-in-btn').onclick = async () => {
+// Dashboard Button Logic
+document.getElementById('ok-btn').onclick = async () => {
     const user = auth.currentUser;
     if (user) {
         try {
-            await setDoc(doc(db, "users", user.uid), {
-                lastCheckIn: new Date().toISOString()
+            await setDoc(doc(db, "users", user.uid), { 
+                lastCheckIn: new Date().toISOString() 
             }, { merge: true });
             alert("Checked in: Status Updated.");
         } catch (error) {
