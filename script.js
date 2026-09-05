@@ -1,8 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
 
-// Your Firebase Config
+// Firebase Configuration Constants
 const firebaseConfig = {
     apiKey: "AIzaSyC9ntGWRG7jAoentLujaSOUceV9Rb-CUlY",
     authDomain: "safecheckkeytest.firebaseapp.com",
@@ -12,24 +12,25 @@ const firebaseConfig = {
     appId: "1:811381429191:web:1548ffdcc165089dce3fe2"
 };
 
+// Initialize Services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Navigation Logic
 const showPage = (id) => {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     document.getElementById(id).style.display = 'block';
 };
 
-// UI Listeners
+// UI Element Event Listeners
 document.getElementById('go-to-reg-btn').onclick = () => showPage('register-screen');
 document.getElementById('back-to-login').onclick = () => showPage('landing-screen');
 document.getElementById('logout-btn').onclick = async () => { 
     await signOut(auth); 
     showPage('landing-screen'); 
 };
-
-// Registration
+// Registration Logic
 document.getElementById('submit-reg-btn').onclick = async () => {
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
@@ -48,21 +49,35 @@ document.getElementById('submit-reg-btn').onclick = async () => {
         alert("Registered successfully!");
         showPage('landing-screen');
     } catch (error) {
-        alert(error.message);
+        alert("Registration Error: " + error.message);
     }
 };
 
-// Login
+// Login Logic
 document.getElementById('login-btn').onclick = async () => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        showPage('dashboard-screen');
     } catch (error) {
-        alert(error.message);
+        alert("Login Error: " + error.message);
     }
 };
+
+// Authentication State & Dashboard Data Load
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        showPage('dashboard-screen');
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            document.getElementById('display-time').textContent = userData.time || "--:--";
+            document.getElementById('system-status').textContent = `System Status: Active - Monitoring ${userData.time}`;
+        }
+    } else {
+        showPage('landing-screen');
+    }
+});
 
 // Dashboard "I'm OK" Button
 document.getElementById('ok-btn').onclick = async () => {
