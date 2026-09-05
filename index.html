@@ -1,14 +1,45 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeCheck Daily</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .screen { display: none; }
+        input, button, select { display: block; width: 100%; margin: 10px 0; padding: 10px; }
+        .link-text { color: blue; text-decoration: underline; cursor: pointer; text-align: center; }
+    </style>
 </head>
-
 <body>
-  
-</body>
+    <div id="landing-screen" class="screen" style="display: block;">
+        <h2>Welcome to SafeCheck Daily</h2>
+        <input type="email" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button id="login-btn" style="background: #007bff; color: white;">Login</button>
+        <button id="go-to-reg-btn" style="background: #28a745; color: white;">Sign up here / Register</button>
+    </div>
 
+    <div id="register-screen" class="screen">
+        <h2>Register</h2>
+        <input type="text" id="reg-name" placeholder="Full Name">
+        <input type="email" id="reg-email" placeholder="Email">
+        <input type="time" id="reg-time">
+        <input type="tel" id="reg-mobile" placeholder="Mobile">
+        <input type="password" id="reg-password" placeholder="Password">
+        <h3>Nominee Details</h3>
+        <input type="text" id="reg-nom-name" placeholder="Nominee Name">
+        <input type="tel" id="reg-nom-mobile" placeholder="Nominee Mobile">
+        <input type="email" id="reg-nom-email" placeholder="Nominee Email">
+        <button id="submit-reg-btn" style="background: #28a745; color: white;">Register</button>
+        <p class="link-text" id="back-to-login">Back to Login</p>
+    </div>
+
+    <div id="dashboard-screen" class="screen">
+        <h2>SafeCheck Dashboard</h2>
+        <button id="check-in-btn" style="background: #dc3545; color: white; padding: 20px; font-size: 18px;">CHECK IN (I am Safe)</button>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
 </html>
