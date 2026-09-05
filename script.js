@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -8,7 +8,6 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Simple page switching
 const showPage = (id) => {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     document.getElementById(id).style.display = 'block';
@@ -31,6 +30,7 @@ document.getElementById('submit-reg-btn').onclick = async () => {
             nomName: document.getElementById('reg-nom-name').value,
             nomMobile: document.getElementById('reg-nom-mobile').value,
             nomEmail: document.getElementById('reg-nom-email').value,
+            lastCheckIn: new Date().toISOString()
         });
         alert("Registered successfully!");
         showPage('landing-screen');
@@ -44,8 +44,25 @@ document.getElementById('login-btn').onclick = async () => {
     const password = document.getElementById('login-password').value;
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        alert("Logged in!");
+        alert("Logged in successfully!");
+        showPage('dashboard-screen');
     } catch (error) {
         alert(error.message);
+    }
+};
+
+document.getElementById('check-in-btn').onclick = async () => {
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            await setDoc(doc(db, "users", user.uid), {
+                lastCheckIn: new Date().toISOString()
+            }, { merge: true });
+            alert("Checked in: Status Updated.");
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    } else {
+        alert("Please log in first!");
     }
 };
