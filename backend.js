@@ -16,53 +16,43 @@ emailjs.init({ publicKey: "qmrTJcOPQE9Ficz8E" });
 
 const db = getFirestore(app);
 const auth = getAuth(app);
-let isFetching = false; // Add a safety lock
+let isFetching = false;
 
 if (window.monitorLoop) clearInterval(window.monitorLoop);
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("Backend monitor: Session active. Initializing...");
-        
+        console.log("Backend monitor: Session active.");
         window.monitorLoop = setInterval(async () => {
-            if (isFetching) return; // Skip if still working
+            if (isFetching) return;
             isFetching = true;
-            
             try {
                 const userRef = doc(db, "users", user.uid);
                 const userDoc = await getDoc(userRef);
                 
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    const now = new Date();
-                    
-                    const [h, m] = data.checkInTime.split(':').map(Number);
-                    const targetTime = new Date();
-                    targetTime.setHours(h, m, 0, 0);
-                    
-                    const diffToDue = (targetTime - now) / 60000;
-                    if (diffToDue > 14 && diffToDue < 16) {
-                        alert("REMINDER: Your check-in is due in 15 minutes.");
-                    }
-
-                    const lastCheckInTime = data.lastCheckIn.toDate().getTime();
-                    const hoursSinceLastCheck = (Date.now() - lastCheckInTime) / 3600000;
-                    
-                    if (hoursSinceLastCheck > 2.9 && !data.alerted) {
-                        await emailjs.send("service_53xjk7g", "e5pr97h", {
-                            user_name: data.name,
-                            nominee_email: data.nominee.email
-                        });
-                        await updateDoc(userRef, { alerted: true });
-                        console.log("Emergency: Email triggered.");
-                    } else {
-                        console.log("System OK. Hours since check-in: " + hoursSinceLastCheck.toFixed(2));
-                    }
+                if (!userDoc.exists()) throw new Error("DocNotFound");
+                
+                const data = userDoc.data();
+                if (!data.lastCheckIn) throw new Error("NoCheckInData");
+                
+                // Alerting logic
+                const lastCheckInTime = data.lastCheckIn.toDate().getTime();
+                const hoursSinceLastCheck = (Date.now() - lastCheckInTime) / 3600000;
+                
+                if (hoursSinceLastCheck > 2.9 && !data.alerted) {
+                    await emailjs.send("service_53xjk7g", "e5pr97h", {
+                        user_name: data.name,
+                        nominee_email: data.nominee.email
+                    });
+                    await updateDoc(userRef, { alerted: true });
+                    console.log("Emergency: Email sent.");
+                } else {
+                    console.log("Monitor running. Current lag (hrs): " + hoursSinceLastCheck.toFixed(2));
                 }
             } catch (e) { 
-                console.error("Monitor loop error:", e.message); 
+                console.error("Monitor Detail Error:", e.message || e); 
             } finally {
-                isFetching = false; // Always release the lock
+                isFetching = false;
             }
         }, 60000);
     } else {
