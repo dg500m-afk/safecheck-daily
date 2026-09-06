@@ -20,25 +20,24 @@ const showPage = (id) => {
     document.getElementById(id).style.display = 'block';
 };
 
+// Navigation Links
 document.getElementById('go-to-reg-btn').onclick = () => showPage('register-screen');
 document.getElementById('back-to-login').onclick = () => showPage('landing-screen');
+document.getElementById('back-to-dashboard-1').onclick = () => showPage('dashboard-screen');
+document.getElementById('back-to-dashboard-2').onclick = () => showPage('dashboard-screen');
+document.getElementById('go-to-amend-user-btn').onclick = () => showPage('amend-user-screen');
+document.getElementById('go-to-amend-nom-btn').onclick = () => showPage('amend-nom-screen');
 
-// Updated Logout: Clears form and signs out
 document.getElementById('logout-btn').onclick = async () => { 
     await signOut(auth); 
     document.getElementById('login-email').value = "";
     document.getElementById('login-password').value = "";
     showPage('landing-screen'); 
 };
-
-// Placeholder instructions for Amend buttons so they don't just "do nothing"
-document.getElementById('go-to-amend-nom-btn').onclick = () => alert("Amendment feature coming next!");
-document.getElementById('go-to-amend-user-btn').onclick = () => alert("Amendment feature coming next!");
+// Registration
 document.getElementById('submit-reg-btn').onclick = async () => {
-    const email = document.getElementById('reg-email').value;
-    const password = document.getElementById('reg-password').value;
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
         await setDoc(doc(db, "users", userCredential.user.uid), {
             name: document.getElementById('reg-name').value,
             time: document.getElementById('reg-time').value,
@@ -48,49 +47,55 @@ document.getElementById('submit-reg-btn').onclick = async () => {
             nomEmail: document.getElementById('reg-nom-email').value,
             lastCheckIn: new Date().toISOString()
         });
-        alert("Registered successfully!");
+        alert("Registered!");
         showPage('landing-screen');
-    } catch (error) {
-        alert("Error: " + error.message);
+    } catch (e) { alert(e.message); }
+};
+
+// Save Amendments
+document.getElementById('save-user-btn').onclick = async () => {
+    const user = auth.currentUser;
+    if (user) {
+        await setDoc(doc(db, "users", user.uid), {
+            name: document.getElementById('edit-name').value,
+            time: document.getElementById('edit-time').value,
+            mobile: document.getElementById('edit-mobile').value
+        }, { merge: true });
+        alert("User details updated!");
+    }
+};
+
+document.getElementById('save-nom-btn').onclick = async () => {
+    const user = auth.currentUser;
+    if (user) {
+        await setDoc(doc(db, "users", user.uid), {
+            nomName: document.getElementById('edit-nom-name').value,
+            nomMobile: document.getElementById('edit-nom-mobile').value,
+            nomEmail: document.getElementById('edit-nom-email').value
+        }, { merge: true });
+        alert("Nominee details updated!");
     }
 };
 
 document.getElementById('login-btn').onclick = async () => {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
     try {
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-        alert("Login Error: " + error.message);
-    }
+        await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
+    } catch (e) { alert(e.message); }
 };
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        showPage('dashboard-screen');
         const docSnap = await getDoc(doc(db, "users", user.uid));
         if (docSnap.exists()) {
-            const userData = docSnap.data();
-            document.getElementById('display-time').textContent = userData.time || "--:--";
-            document.getElementById('system-status').textContent = `System Status: Active - Monitoring ${userData.time || ""}`;
+            const d = docSnap.data();
+            document.getElementById('display-time').textContent = d.time;
+            document.getElementById('system-status').textContent = `System Status: Monitoring ${d.time}`;
         }
-    } else {
-        showPage('landing-screen');
-    }
+        showPage('dashboard-screen');
+    } else { showPage('landing-screen'); }
 });
 
 document.getElementById('ok-btn').onclick = async () => {
-    const user = auth.currentUser;
-    if (user) {
-        try {
-            await setDoc(doc(db, "users", user.uid), { 
-                lastCheckIn: new Date().toISOString() 
-            }, { merge: true });
-            alert("Checked in: Status Updated.");
-        } catch (error) {
-            alert("Error: " + error.message);
-        }
-    } else {
-        alert("Please log in first!");
-    }
+    await setDoc(doc(db, "users", auth.currentUser.uid), { lastCheckIn: new Date().toISOString() }, { merge: true });
+    alert("Checked in!");
 };

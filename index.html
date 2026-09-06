@@ -1,71 +1,32 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeCheck Daily | Build v35</title>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            padding: 20px; 
-            line-height: 1.6; 
-            max-width: 600px; 
-            margin: auto; 
-        }
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; max-width: 600px; margin: auto; }
         .screen { display: none; }
-        input, button, select { 
-            display: block; 
-            width: 100%; 
-            margin: 12px 0; 
-            padding: 12px; 
-            border-radius: 8px; 
-            border: 1px solid #ccc; 
-        }
-        .link-text { 
-            color: #007bff; 
-            text-decoration: underline; 
-            cursor: pointer; 
-            text-align: center; 
-            margin-top: 15px; 
-        }
-        .small-note { font-size: 12px; color: #666; margin-bottom: 5px; }
-        .emergency-note { 
-            font-size: 13px; 
-            color: #721c24; 
-            background: #f8d7da; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin: 15px 0; 
-            border: 1px solid #f5c6cb; 
-        }
-        button { cursor: pointer; font-weight: bold; }
+        input, button, select { display: block; width: 100%; margin: 10px 0; padding: 12px; border-radius: 8px; border: 1px solid #ccc; }
+        .link-text { color: #007bff; text-decoration: underline; cursor: pointer; text-align: center; }
     </style>
 </head>
 <body>
 
-    <!-- Landing / Login Screen -->
     <div id="landing-screen" class="screen" style="display: block;">
-        <select id="lang-select-1"><option value="en">English</option><option value="th">Thai</option></select>
-        <h2>Welcome to SafeCheck Daily</h2>
-        <p>Our aim is to provide you with a daily Check In Service, and if you miss your check in time, we will alert your Family Member or Friend to contact you. We offer you a free 30 day trial, after which we will automatically charge you a monthly subscription fee of $10. The Subscription fee may be changed from time to time, but only after notice to you.</p>
-        <p><strong>If you are an existing user Login here.</strong></p>
-        <input type="email" id="login-email" placeholder="Email Address">
+        <h2>Login</h2>
+        <input type="email" id="login-email" placeholder="Email">
         <input type="password" id="login-password" placeholder="Password">
         <button id="login-btn" style="background: #007bff; color: white;">Login</button>
-        <p class="link-text" id="forgot-password-link">Forgot Password?</p>
-        <p><strong>If you would like to join SafeCheck Daily</strong></p>
-        <button id="go-to-reg-btn" style="background: #28a745; color: white;">Sign up here / Register</button>
+        <p class="link-text" id="go-to-reg-btn">Register</p>
     </div>
 
-    <!-- Registration Screen -->
     <div id="register-screen" class="screen">
-        <select id="lang-select-2"><option value="en">English</option><option value="th">Thai</option></select>
         <h2>Register</h2>
-        <input type="text" id="reg-name" placeholder="Full Name">
-        <input type="email" id="reg-email" placeholder="Email Address">
+        <input type="text" id="reg-name" placeholder="Name">
+        <input type="email" id="reg-email" placeholder="Email">
         <input type="time" id="reg-time">
         <input type="tel" id="reg-mobile" placeholder="Mobile">
-        <p class="small-note">Password should be a minimum of 6 characters.</p>
         <input type="password" id="reg-password" placeholder="Password">
         <h3>Nominee Details</h3>
         <input type="text" id="reg-nom-name" placeholder="Nominee Name">
@@ -74,30 +35,33 @@
         <button id="submit-reg-btn" style="background: #28a745; color: white;">Register</button>
         <p class="link-text" id="back-to-login">Back to Login</p>
     </div>
-    <!-- Dashboard Screen -->
-    <div id="dashboard-screen" class="screen">
-        <select id="lang-select-3"><option value="en">English</option><option value="th">Thai</option></select>
-        <h2>SafeCheck Daily</h2>
-        <p><strong>Current Status: Monitoring</strong></p>
-        <p id="system-status" style="color: blue; font-size: 14px;">System Status: Active - Monitoring</p>
-        
-        <button id="ok-btn" style="background: green; color: white; padding: 30px; font-size: 1.5em;">
-            I'm OK<br><span style="font-size: 12px;">Press this to check in</span>
-        </button>
-        
-        <p>Daily check in time: <span id="display-time">--:--</span></p>
-        
-        <p style="font-size: 14px;">
-            If you miss pressing "I'm OK" any time BEFORE your check in time, your Family Member / Friend will be alerted after 3 hours have passed. If you are late and press it within 3 hours after your check in time has passed the alert process will be stopped.
-        </p>
-        
-        <div class="emergency-note">
-            <strong>Please Note:</strong> This is an automated alert system. It is not a Medical or Emergency service. If you are having a Medical Emergency please call your local Emergency number IMMEDIATELY!
-        </div>
 
+    <div id="dashboard-screen" class="screen">
+        <h2>SafeCheck Daily</h2>
+        <p id="system-status">Monitoring</p>
+        <button id="ok-btn" style="background: green; color: white; padding: 30px;">I'm OK</button>
+        <p>Check in time: <span id="display-time">--:--</span></p>
         <button id="go-to-amend-nom-btn" style="background: #6c757d; color: white;">Amend Nominee Details</button>
         <button id="go-to-amend-user-btn" style="background: #6c757d; color: white;">Amend Your Details</button>
         <button id="logout-btn" style="background: #dc3545; color: white;">Log Out</button>
+    </div>
+
+    <div id="amend-user-screen" class="screen">
+        <h2>Amend Your Details</h2>
+        <input type="text" id="edit-name" placeholder="New Name">
+        <input type="time" id="edit-time">
+        <input type="tel" id="edit-mobile" placeholder="New Mobile">
+        <button id="save-user-btn" style="background: #28a745; color: white;">Save User Changes</button>
+        <p class="link-text" id="back-to-dashboard-1">Back</p>
+    </div>
+
+    <div id="amend-nom-screen" class="screen">
+        <h2>Amend Nominee Details</h2>
+        <input type="text" id="edit-nom-name" placeholder="New Nominee Name">
+        <input type="tel" id="edit-nom-mobile" placeholder="New Nominee Mobile">
+        <input type="email" id="edit-nom-email" placeholder="New Nominee Email">
+        <button id="save-nom-btn" style="background: #28a745; color: white;">Save Nominee Changes</button>
+        <p class="link-text" id="back-to-dashboard-2">Back</p>
     </div>
 
     <script type="module" src="backend.js"></script>
