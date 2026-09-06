@@ -16,55 +16,55 @@ emailjs.init({ publicKey: "qmrTJcOPQE9Ficz8E" });
 
 const db = getFirestore(app);
 const auth = getAuth(app);
+let isFetching = false; // Add a safety lock
 
 if (window.monitorLoop) clearInterval(window.monitorLoop);
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("Backend monitor: Session active. Waiting for safe initialization...");
+        console.log("Backend monitor: Session active. Initializing...");
         
-        // Wait a brief moment to ensure rules propagate the user state
-        setTimeout(() => {
-            window.monitorLoop = setInterval(async () => {
-                try {
-                    const userRef = doc(db, "users", user.uid);
-                    const userDoc = await getDoc(userRef);
+        window.monitorLoop = setInterval(async () => {
+            if (isFetching) return; // Skip if still working
+            isFetching = true;
+            
+            try {
+                const userRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    const now = new Date();
                     
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        const now = new Date();
-                        
-                        // Time calculation
-                        const [h, m] = data.checkInTime.split(':').map(Number);
-                        const targetTime = new Date();
-                        targetTime.setHours(h, m, 0, 0);
-                        
-                        // Check if past check-in logic needs reminder
-                        const diffToDue = (targetTime - now) / 60000;
-                        if (diffToDue > 14 && diffToDue < 16) {
-                            alert("REMINDER: Your check-in is due in 15 minutes.");
-                        }
-
-                        // Check breach
-                        const lastCheckInTime = data.lastCheckIn.toDate().getTime();
-                        const hoursSinceLastCheck = (Date.now() - lastCheckInTime) / 3600000;
-                        
-                        if (hoursSinceLastCheck > 2.9 && !data.alerted) {
-                            await emailjs.send("service_53xjk7g", "e5pr97h", {
-                                user_name: data.name,
-                                nominee_email: data.nominee.email
-                            });
-                            await updateDoc(userRef, { alerted: true });
-                            console.log("Emergency: Email triggered.");
-                        } else {
-                            console.log("System OK. Hours since check-in: " + hoursSinceLastCheck.toFixed(2));
-                        }
+                    const [h, m] = data.checkInTime.split(':').map(Number);
+                    const targetTime = new Date();
+                    targetTime.setHours(h, m, 0, 0);
+                    
+                    const diffToDue = (targetTime - now) / 60000;
+                    if (diffToDue > 14 && diffToDue < 16) {
+                        alert("REMINDER: Your check-in is due in 15 minutes.");
                     }
-                } catch (e) { 
-                    console.error("Loop blocked by rule or fetch error:", e.code); 
+
+                    const lastCheckInTime = data.lastCheckIn.toDate().getTime();
+                    const hoursSinceLastCheck = (Date.now() - lastCheckInTime) / 3600000;
+                    
+                    if (hoursSinceLastCheck > 2.9 && !data.alerted) {
+                        await emailjs.send("service_53xjk7g", "e5pr97h", {
+                            user_name: data.name,
+                            nominee_email: data.nominee.email
+                        });
+                        await updateDoc(userRef, { alerted: true });
+                        console.log("Emergency: Email triggered.");
+                    } else {
+                        console.log("System OK. Hours since check-in: " + hoursSinceLastCheck.toFixed(2));
+                    }
                 }
-            }, 60000);
-        }, 2000); // 2 second delay to let auth propagate
+            } catch (e) { 
+                console.error("Monitor loop error:", e.message); 
+            } finally {
+                isFetching = false; // Always release the lock
+            }
+        }, 60000);
     } else {
         if (window.monitorLoop) clearInterval(window.monitorLoop);
     }
