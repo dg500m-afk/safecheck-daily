@@ -13,6 +13,9 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// New Audio object
+const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+
 const showPage = (id) => {
     ['landing-screen', 'register-screen', 'dashboard-screen', 'amend-nominee-screen', 'amend-user-screen', 'subscription-screen'].forEach(s => 
         document.getElementById(s).style.display = (s === id) ? 'block' : 'none');
@@ -57,11 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('display-time').innerText = userData.checkInTime;
                 checkStatus(userData);
                 showPage('dashboard-screen');
+                // Auto-enable audio on login
+                alarmSound.play().catch(() => console.log("Waiting for user interaction"));
             }
         } catch(e) { alert(e.message); }
     };
     document.getElementById('submit-reg-btn').onclick = async () => {
-        // NEW: Check if the terms box is ticked
         if (!document.getElementById('terms-consent').checked) {
             alert("You must agree to the Terms & Conditions to register.");
             return;
@@ -78,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mobile: document.getElementById('reg-mobile').value,
                 nominee: { name: document.getElementById('reg-nom-name').value, mobile: document.getElementById('reg-nom-mobile').value, email: document.getElementById('reg-nom-email').value },
                 lastCheckIn: serverTimestamp(),
-                termsAgreedAt: serverTimestamp(), // NEW: Saves agreement date
+                termsAgreedAt: serverTimestamp(),
                 trialEndDate: trialEnd.toISOString(),
                 alerted: false
             });
@@ -95,6 +99,26 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Check-in successful!");
         } catch(e) { alert("Error: " + e.message); }
     };
+
+    // Auditor Check Loop
+    setInterval(async () => {
+        if (!auth.currentUser) return;
+        const d = await getDoc(doc(db, "users", auth.currentUser.uid));
+        if (!d.exists()) return;
+        const userData = d.data();
+        
+        const now = new Date();
+        const [hours, minutes] = userData.checkInTime.split(':');
+        const checkInDate = new Date();
+        checkInDate.setHours(hours, minutes, 0, 0);
+
+        // Calculate time 15 minutes before deadline
+        const reminderTime = new Date(checkInDate.getTime() - 15 * 60000);
+
+        if (now.getHours() === reminderTime.getHours() && now.getMinutes() === reminderTime.getMinutes()) {
+            alarmSound.play().catch(e => console.log("Alert muted until interaction."));
+        }
+    }, 60000);
 
     document.getElementById('go-to-amend-nom-btn').onclick = async () => {
         const d = await getDoc(doc(db, "users", auth.currentUser.uid));
