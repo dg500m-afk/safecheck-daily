@@ -60,18 +60,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch(e) { alert(e.message); }
     };
-
     document.getElementById('submit-reg-btn').onclick = async () => {
+        // NEW: Check if the terms box is ticked
+        if (!document.getElementById('terms-consent').checked) {
+            alert("You must agree to the Terms & Conditions to register.");
+            return;
+        }
+
         try {
             const c = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
             const trialEnd = new Date();
             trialEnd.setDate(trialEnd.getDate() + 30);
+            
             await setDoc(doc(db, "users", c.user.uid), {
                 name: document.getElementById('reg-name').value,
                 checkInTime: document.getElementById('reg-time').value,
                 mobile: document.getElementById('reg-mobile').value,
                 nominee: { name: document.getElementById('reg-nom-name').value, mobile: document.getElementById('reg-nom-mobile').value, email: document.getElementById('reg-nom-email').value },
                 lastCheckIn: serverTimestamp(),
+                termsAgreedAt: serverTimestamp(), // NEW: Saves agreement date
                 trialEndDate: trialEnd.toISOString(),
                 alerted: false
             });
