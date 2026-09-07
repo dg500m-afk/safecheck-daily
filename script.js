@@ -13,7 +13,6 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// New Audio object
 const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 
 const showPage = (id) => {
@@ -60,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('display-time').innerText = userData.checkInTime;
                 checkStatus(userData);
                 showPage('dashboard-screen');
-                // Auto-enable audio on login
                 alarmSound.play().catch(() => console.log("Waiting for user interaction"));
             }
         } catch(e) { alert(e.message); }
@@ -72,13 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            const timeVal = document.getElementById('reg-time').value;
             const c = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
             const trialEnd = new Date();
             trialEnd.setDate(trialEnd.getDate() + 30);
             
             await setDoc(doc(db, "users", c.user.uid), {
                 name: document.getElementById('reg-name').value,
-                checkInTime: document.getElementById('reg-time').value,
+                checkInTime: timeVal,
                 mobile: document.getElementById('reg-mobile').value,
                 nominee: { name: document.getElementById('reg-nom-name').value, mobile: document.getElementById('reg-nom-mobile').value, email: document.getElementById('reg-nom-email').value },
                 lastCheckIn: serverTimestamp(),
@@ -86,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 trialEndDate: trialEnd.toISOString(),
                 alerted: false
             });
+            document.getElementById('display-time').innerText = timeVal;
             showPage('dashboard-screen');
         } catch(e) { alert(e.message); }
     };
@@ -100,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { alert("Error: " + e.message); }
     };
 
-    // Auditor Check Loop
     setInterval(async () => {
         if (!auth.currentUser) return;
         const d = await getDoc(doc(db, "users", auth.currentUser.uid));
@@ -112,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkInDate = new Date();
         checkInDate.setHours(hours, minutes, 0, 0);
 
-        // Calculate time 15 minutes before deadline
         const reminderTime = new Date(checkInDate.getTime() - 15 * 60000);
 
         if (now.getHours() === reminderTime.getHours() && now.getMinutes() === reminderTime.getMinutes()) {
@@ -154,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mobile: document.getElementById('edit-user-mobile').value,
                 checkInTime: document.getElementById('edit-user-time').value
             });
+            document.getElementById('display-time').innerText = document.getElementById('edit-user-time').value;
             const newPass = document.getElementById('new-password').value;
             if (newPass.length >= 6) {
                 await updatePassword(auth.currentUser, newPass);
